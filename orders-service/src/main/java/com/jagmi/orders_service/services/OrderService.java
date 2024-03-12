@@ -18,7 +18,7 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final WebClient.Builder webClient;
 
-    public void placeOrder(OrderRequest orderRequest) {
+    public OrdersResponse placeOrder(OrderRequest orderRequest) {
 
         //Antes de guardar los items debemos revisar que tengan stock o inventario
         BaseResponse baseResult = this.webClient.build()
@@ -35,7 +35,8 @@ public class OrderService {
             order.setOrderItems(orderRequest.getOrdersItems().stream()
                     .map(orderItemRequest -> mapOrderItemRequest(orderItemRequest, order))
                     .toList());
-            this.orderRepository.save(order);
+           var savedOrder = this.orderRepository.save(order);
+           return mapToOrderResponse(savedOrder);
         }else{
             throw new IllegalArgumentException("Some of the products are not in stock");
         }
